@@ -1,0 +1,17 @@
+name: change_detection
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scikit-image
+  - opencv
+  - tifffile
+  - pyyaml
+  - pillow
+  - tqdm
+  - pip
+  - pip:
+      - segment-geospatial>=0.10.7

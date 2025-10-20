@@ -1,0 +1,6 @@
+site,algo,n_regions_t0,n_regions_t1,change_pct
+annarbor,felzenszwalb,1062,1163,16.628799969413134
+annarbor,meanshift,583,509,3.45877811254693
+annarbor,quickshift,4662,4598,3.594854918026614
+annarbor,rezsd,5,6,28.540965838291633
+annarbor,samgeo,87,77,11.081512265739638

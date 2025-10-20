@@ -1,0 +1,6 @@
+site,algo,n_regions_t0,n_regions_t1,change_pct
+hathawaynorth,felzenszwalb,2134,1649,3.0349991139464825
+hathawaynorth,meanshift,478,474,1.833953570795676
+hathawaynorth,quickshift,6867,6844,2.410614921141237
+hathawaynorth,rezsd,5,5,31.585681375155062
+hathawaynorth,samgeo,263,194,10.211252879673932

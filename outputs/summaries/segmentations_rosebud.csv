@@ -1,0 +1,6 @@
+site,algo,n_regions_t0,n_regions_t1,change_pct
+rosebud,felzenszwalb,284,336,6.926382978723404
+rosebud,meanshift,326,372,3.29531914893617
+rosebud,quickshift,845,908,2.1553191489361705
+rosebud,rezsd,5,6,58.884680851063834
+rosebud,samgeo,193,193,3.839290780141844

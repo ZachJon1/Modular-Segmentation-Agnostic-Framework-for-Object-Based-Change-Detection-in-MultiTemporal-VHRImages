@@ -1,0 +1,140 @@
+Change Detection Experiments
+============================
+
+This repository automates the change‐detection workflow described in the AAAI draft. It takes bi‑temporal UAV imagery, produces multi‑algorithm segmentations, computes Region Correlation Matrix (RCM) metrics, extracts overlay features, runs Change Vector Analysis (CVA), and exports qualitative overlays and quantitative summaries.
+
+Directory Layout
+----------------
+
+```
+├── change_detection/              # Source package and experiment scripts
+│   ├── environment.yml            # Conda environment definition
+│   ├── experiments/               # Batch configs (YAML) and runner
+│   └── src/change_detection/      # Library modules (segmentation, CVA, fusion…)
+├── outputs/                       # Generated artefacts (created after running)
+│   ├── segmentations/<site>/<algo>/
+│   │   ├── {year}_mask.png        # Segmentation labels (uint16 PNG)
+│   │   ├── {year}_overlay.png     # Colour overlay for visual QA
+│   │   └── {year}_samgeo.tif      # (SAMGeo) GeoTIFF export from SamGeo
+│   ├── metrics/<site>_pairwise.csv          # RCM tables (all algorithm pairs)
+│   ├── change_maps/<site>/<algo>/           # CVA artefacts (float map, stretched PNG, binary mask, overlay, summary)
+│   └── summaries/segmentations_<site>.csv, summary.csv
+├── supplementary/                  # Provided scripts/data from the draft
+└── README.md                       # This file
+```
+
+Data Requirements
+-----------------
+
+Place imagery and REZsd masks under `change_detection/data` following the instructions:
+
+```
+change_detection/data/
+├── pairs/<site>/{2022,2023}.png         # RGB images (one per year)
+└── rezsd/<site>/<year>labels.csv        # REZsd segmentation labels (CSV)
+```
+
+If REZsd masks are supplied as PNG/TIF (or the legacy JPG previews), store them alongside the CSV; the loader auto-detects whichever extension is present and normalises labels to sequential integers.
+
+The repository already includes sample assets in `supplementary/data/images` and `change_detection/data/rezsd/` for Ann Arbor, Hathaway, HathawayNorth, Rosebud, and Libya. Current runs write results to `outputs/`; any older `change_detection/outputs/` folders are legacy artefacts from early smoke tests.
+
+Environment Setup
+-----------------
+
+Create the conda environment (includes `samgeo`, `torch`, `scikit-image`, `opencv`, etc.):
+
+```bash
+conda env create -f change_detection/environment.yml
+conda activate change_detection
+```
+
+Ensure the SAM checkpoint (`sam_vit_h_4b8939.pth`) is available at project root or specify `checkpoint` in the config/CLI.
+
+Command-Line Workflow
+---------------------
+
+Segmentations (run per site):
+
+```bash
+python -m change_detection.cli segment \
+  --data-root change_detection/data \
+  --site rosebud \
+  --algos felzenszwalb meanshift quickshift rezsd samgeo \
+  --outdir outputs/segmentations \
+  --out-summary outputs/summaries/segmentations_rosebud.csv
+```
+
+RCM metrics:
+
+```bash
+python -m change_detection.cli compare-segmentations \
+  --segs-root outputs/segmentations/rosebud \
+  --outcsv outputs/metrics/rosebud_pairwise.csv
+```
+
+CVA & overlays:
+
+```bash
+python -m change_detection.cli change-map \
+  --data-root change_detection/data \
+  --site rosebud \
+  --algo samgeo \
+  --seg-path-t0 outputs/segmentations/rosebud/samgeo/2022_mask.png \
+  --seg-path-t1 outputs/segmentations/rosebud/samgeo/2023_mask.png \
+  --outdir outputs/change_maps/rosebud/samgeo \
+  --method multi_otsu --classes 3
+```
+
+Outputs include the dense CVA map (`CVA_float.tif`), stretched preview (`C_hat_uint8.png`), binary change mask, and a `change_overlay.png` highlighting the mask on top of the t₁ image.
+
+Batch Experiments
+-----------------
+
+Edit `change_detection/experiments/configs/default.yaml` to list sites, algorithms, and parameters. Then run:
+
+```bash
+python change_detection/experiments/run_experiments.py \
+  --config change_detection/experiments/configs/default.yaml
+```
+
+This orchestrates segmentations (Felzenszwalb, MeanShift, Quickshift, REZsd, SAMGeo), generates `outputs/segmentations`, pairwise RCM CSVs, CVA maps, overlays, and summary tables. The shipped config already lists all five algorithms and their starter parameters; adjust the `params:` block to tune hyperparameters (e.g., `meanshift.quantization`, `quickshift.max_dist`, `samgeo.sam_kwargs`), or override paths to alternative data roots.
+
+Key Modules
+-----------
+
+- `segmentation.py` – wraps `skimage`, OpenCV mean shift, SAMGeo, and REZsd loaders; writes overlays.
+- `overlay_features.py` – extracts gradient, histogram, and GLCM features on overlay cells.
+- `cva.py` – computes CVA magnitudes and rasterises them.
+- `fusion.py` – applies validity-aware fusion, percentile stretch, and thresholding (Otsu / Multi-Otsu).
+- `rcm_metrics.py` – builds intersection matrices and reports overlap/fragmentation/composite scores.
+- `viz.py` – generates binary or label-colour overlays.
+- `cli.py` – exposes the pipeline as `segment`, `compare-segmentations`, `change-map`.
+- `experiments/run_experiments.py` – batch driver leveraging the YAML config.
+
+Results Overview
+----------------
+
+`outputs/summaries/summary.csv` collects algorithm counts and change percentages per site. Example (Rosebud):
+
+```
+algo         n_regions_t0  n_regions_t1  change_pct
+felzenszwalb       284            336        6.93
+meanshift          326            372        3.30
+quickshift         845            908        2.16
+rezsd                5              6       58.88
+samgeo             193            193        3.84
+```
+
+Tips & Notes
+------------
+
+- The CLI honours custom parameters via `--param-file` pointing to a JSON/YAML mapping.
+- Segmentations are normalized to sequential labels before metric calculations.
+- Segmentation overlays (`outputs/segmentations/.../{year}_overlay.png`) provide an easy QA pass for mask quality; CVA overlays (`change_overlay.png`) highlight detected change on t₁ imagery.
+- REZsd CSV labels are parsed directly with `load_csv_mask`, so no manual conversion is required.
+- Long-running SAMGeo and Quickshift steps can be parallelised across sites if desired.
+
+License
+-------
+
+Ensure distribution complies with the original dataset and SAMGeo licensing terms. The repository itself inherits the research code license from the accompanying manuscript unless specified otherwise.
