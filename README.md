@@ -1,7 +1,9 @@
 Change Detection Experiments
 ============================
 
-This repository automates the change‐detection workflow described in the AAAI draft. It takes bi‑temporal UAV imagery, produces multi‑algorithm segmentations, computes Region Correlation Matrix (RCM) metrics, extracts overlay features, runs Change Vector Analysis (CVA), and exports qualitative overlays and quantitative summaries.
+This repository automates the change‐detection workflow described in the AAAI paper. It takes bi‑temporal UAV imagery, produces multi‑algorithm segmentations, computes Region Correlation Matrix (RCM) metrics, extracts overlay features, runs Change Vector Analysis (CVA), and exports qualitative overlays and quantitative summaries.
+
+*RESDA described in paper == REZsd in code*
 
 Directory Layout
 ----------------
@@ -18,8 +20,7 @@ Directory Layout
 │   │   └── {year}_samgeo.tif      # (SAMGeo) GeoTIFF export from SamGeo
 │   ├── metrics/<site>_pairwise.csv          # RCM tables (all algorithm pairs)
 │   ├── change_maps/<site>/<algo>/           # CVA artefacts (float map, stretched PNG, binary mask, overlay, summary)
-│   └── summaries/segmentations_<site>.csv, summary.csv
-├── supplementary/                  # Provided scripts/data from the draft
+│   └── summaries/segmentations_<site>.csv, summary.csv 
 └── README.md                       # This file
 ```
 
@@ -82,10 +83,29 @@ python -m change_detection.cli change-map \
   --seg-path-t0 outputs/segmentations/rosebud/samgeo/2022_mask.png \
   --seg-path-t1 outputs/segmentations/rosebud/samgeo/2023_mask.png \
   --outdir outputs/change_maps/rosebud/samgeo \
-  --method multi_otsu --classes 3
+  --method multi_otsu --classes 3 \
+  --method-param block_size=51
 ```
 
 Outputs include the dense CVA map (`CVA_float.tif`), stretched preview (`C_hat_uint8.png`), binary change mask, and a `change_overlay.png` highlighting the mask on top of the t₁ image.
+
+`--method` now accepts a comprehensive suite of global and local thresholding strategies (multi-otsu, otsu, triangle, li, yen, isodata, mean, median, minimum, niblack, sauvola, adaptive, hysteresis, percentile‑*, manual). Extra parameters can be provided with repeated `--method-param key=value` flags, e.g. `--method adaptive --method-param block_size=41 --method-param offset=-5`.
+
+Threshold gallery (builds a comparison mosaic for a site/algo pair):
+
+```bash
+python -m change_detection.cli threshold-gallery \
+  --data-root change_detection/data \
+  --site libya \
+  --algo samgeo \
+  --seg-path-t0 outputs/segmentations/libya/samgeo/2022_mask.png \
+  --seg-path-t1 outputs/segmentations/libya/samgeo/2023_mask.png \
+  --outdir outputs/change_maps/libya/samgeo \
+  --overlay-method multi_otsu \
+  --ncols 4 --dpi 220
+```
+
+The command renders `threshold_gallery.png` (tile layout including T0/T1 imagery, stretched CVA, overlay, and per-method binary masks annotated with percentage change) plus a machine-readable `threshold_summary.json` containing per-method statistics and parameter values.
 
 Batch Experiments
 -----------------
@@ -105,10 +125,11 @@ Key Modules
 - `segmentation.py` – wraps `skimage`, OpenCV mean shift, SAMGeo, and REZsd loaders; writes overlays.
 - `overlay_features.py` – extracts gradient, histogram, and GLCM features on overlay cells.
 - `cva.py` – computes CVA magnitudes and rasterises them.
-- `fusion.py` – applies validity-aware fusion, percentile stretch, and thresholding (Otsu / Multi-Otsu).
+- `fusion.py` – applies validity-aware fusion, percentile stretch, and a pluggable threshold registry (global, local, hysteresis, percentile, manual).
+- `gallery.py` – assembles threshold comparison mosaics (T0, T1, stretched CVA, overlay, per-method masks).
 - `rcm_metrics.py` – builds intersection matrices and reports overlap/fragmentation/composite scores.
 - `viz.py` – generates binary or label-colour overlays.
-- `cli.py` – exposes the pipeline as `segment`, `compare-segmentations`, `change-map`.
+- `cli.py` – exposes the pipeline as `segment`, `compare-segmentations`, `change-map`, `threshold-gallery`.
 - `experiments/run_experiments.py` – batch driver leveraging the YAML config.
 
 Results Overview
@@ -133,8 +154,3 @@ Tips & Notes
 - Segmentation overlays (`outputs/segmentations/.../{year}_overlay.png`) provide an easy QA pass for mask quality; CVA overlays (`change_overlay.png`) highlight detected change on t₁ imagery.
 - REZsd CSV labels are parsed directly with `load_csv_mask`, so no manual conversion is required.
 - Long-running SAMGeo and Quickshift steps can be parallelised across sites if desired.
-
-License
--------
-
-Ensure distribution complies with the original dataset and SAMGeo licensing terms. The repository itself inherits the research code license from the accompanying manuscript unless specified otherwise.

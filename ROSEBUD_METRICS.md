@@ -1,5 +1,6 @@
 # Rosebud Pairwise Segmentation Metrics
 
+
 This document explains the Region Correlation Matrix (RCM) statistics computed for the Rosebud site. The CSV `outputs/metrics/rosebud_pairwise.csv` contains pairwise comparisons between the segmentation algorithms:
 
 | Algorithm | Description |

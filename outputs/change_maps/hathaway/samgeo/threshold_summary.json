@@ -1,0 +1,98 @@
+{
+  "site": "hathaway",
+  "algo": "samgeo",
+  "gamma": 1.0,
+  "classes": 3,
+  "overlay_method": "multi_otsu",
+  "methods": [
+    {
+      "method": "multi_otsu",
+      "percent": 19.444751524588035,
+      "params": {}
+    },
+    {
+      "method": "otsu",
+      "percent": 19.444504995458676,
+      "params": {}
+    },
+    {
+      "method": "triangle",
+      "percent": 19.444323342415988,
+      "params": {}
+    },
+    {
+      "method": "li",
+      "percent": 19.47824056052939,
+      "params": {}
+    },
+    {
+      "method": "yen",
+      "percent": 49.79941611521993,
+      "params": {}
+    },
+    {
+      "method": "isodata",
+      "percent": 19.444504995458676,
+      "params": {}
+    },
+    {
+      "method": "mean",
+      "percent": 19.524030102504216,
+      "params": {}
+    },
+    {
+      "method": "median",
+      "percent": 50.072038406643316,
+      "params": {}
+    },
+    {
+      "method": "minimum",
+      "percent": 19.444504995458676,
+      "params": {}
+    },
+    {
+      "method": "niblack",
+      "percent": 83.16278707668353,
+      "params": {
+        "window_size": 31
+      }
+    },
+    {
+      "method": "sauvola",
+      "percent": 67.54575061632282,
+      "params": {
+        "window_size": 31,
+        "k": 0.2
+      }
+    },
+    {
+      "method": "adaptive",
+      "percent": 75.17237576229402,
+      "params": {
+        "block_size": 31,
+        "offset": 0.0,
+        "method": "gaussian"
+      }
+    },
+    {
+      "method": "hysteresis",
+      "percent": 19.450525496302063,
+      "params": {
+        "low_ratio": 0.5,
+        "high_ratio": 1.0
+      }
+    },
+    {
+      "method": "percentile-90",
+      "percent": 19.444323342415988,
+      "params": {}
+    },
+    {
+      "method": "manual",
+      "percent": 32.89718437783833,
+      "params": {
+        "value": 23.725051879882812
+      }
+    }
+  ]
+}
