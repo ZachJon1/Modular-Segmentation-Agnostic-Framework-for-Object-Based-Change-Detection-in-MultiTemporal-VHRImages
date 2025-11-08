@@ -6,3 +6,4 @@ outputs/
 ROSEBUD_METRICS.md
 *.zip
 *.tar.gz
+change_detection/sam_vit_h_4b8939.pth
