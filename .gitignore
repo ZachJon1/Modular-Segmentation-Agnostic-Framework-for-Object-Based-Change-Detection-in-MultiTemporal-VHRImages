@@ -1,0 +1,8 @@
+# .gitignore
+# ignore selected files and directories
+node_modules/
+open_source_datasets/
+outputs/
+ROSEBUD_METRICS.md
+*.zip
+*.tar.gz
