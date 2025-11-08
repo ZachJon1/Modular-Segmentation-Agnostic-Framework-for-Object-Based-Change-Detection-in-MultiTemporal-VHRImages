@@ -51,6 +51,17 @@ conda activate change_detection
 
 Ensure the SAM checkpoint (`sam_vit_h_4b8939.pth`) is available at project root or specify `checkpoint` in the config/CLI.
 
+SAM Checkpoint Helper
+---------------------
+
+The 2.6 GB SAM ViT-H weights are not stored in git. Fetch them into `change_detection/sam_vit_h_4b8939.pth` with:
+
+```bash
+./scripts/download_sam_weights.sh
+```
+
+The script downloads the file directly from the official Segment Anything CDN, verifies its SHA-256 hash, and keeps the temporary download out of version control. Use `./scripts/download_sam_weights.sh --force` to re-download if the file becomes corrupted. The path is already listed in `.gitignore`, so the checkpoint will never be committed by accident.
+
 Command-Line Workflow
 ---------------------
 
