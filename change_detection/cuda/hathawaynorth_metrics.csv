@@ -1,9 +1,0 @@
-direction,overlap,fragmentation,composite
-forward,0.865428,0.196001,0.165287
-backward,0.630679,0.40323,0.386276
-symmetric,0.748054,0.299616,0.275781
-
-timing_ms_gpu,281.772
-timing_ms_kernel,2.09685
-timing_ms_cpu,7.8711
-gflops_est,8.07353
