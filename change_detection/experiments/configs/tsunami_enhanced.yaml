@@ -1,0 +1,35 @@
+data_root: "change_detection/data"
+sites:
+  # Update the site name to match your tsunami pair folder under change_detection/data/pairs/
+  - name: "tsunami"
+algorithms:
+  - samgeo
+params:
+  samgeo:
+    checkpoint: sam_vit_h_4b8939.pth
+    model_type: vit_h
+    sam_kwargs:
+      points_per_side: 16
+      pred_iou_thresh: 0.86
+      stability_score_thresh: 0.90
+      crop_n_layers: 0
+      crop_n_points_downscale_factor: 4
+      min_mask_region_area: 200
+    generate_kwargs:
+      batch: true
+      batch_sample_size: [1024, 1024]
+      batch_nodata_threshold: 1.0
+      mask_multiplier: 255
+      unique: true
+fusion:
+  method: percentile-90
+  classes: 3
+preprocessing:
+  align: true          # homography align t1 to t0
+  histogram_match: true
+  crop_top_frac: 0.12  # ignore top band (sky/wires) in fusion
+postprocessing:
+  open_radius: 2
+  close_radius: 5
+  min_size: 200
+seed: 1337
