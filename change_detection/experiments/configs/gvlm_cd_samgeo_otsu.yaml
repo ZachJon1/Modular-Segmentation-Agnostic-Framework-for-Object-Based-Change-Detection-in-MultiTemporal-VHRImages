@@ -1,0 +1,34 @@
+data_root: "change_detection/data"
+sites:
+  - name: "Kupang_Indonesia"
+  - name: "Kurucasile_Turkey"
+  - name: "Los Lagos_Chile"
+  - name: "Osh_Kyrgyzstan"
+  - name: "Santa Catarina_Brazil"
+  - name: "Shimen_China"
+  - name: "Taitung_China"
+  - name: "Tbilisi_Georgia"
+  - name: "Tenejapa_Mexico"
+algorithms:
+  - samgeo
+params:
+  samgeo:
+    checkpoint: sam_vit_h_4b8939.pth
+    model_type: vit_h
+    sam_kwargs:
+      points_per_side: 8
+      pred_iou_thresh: 0.86
+      stability_score_thresh: 0.92
+      crop_n_layers: 0
+      crop_n_points_downscale_factor: 4
+      min_mask_region_area: 400
+    generate_kwargs:
+      batch: true
+      batch_sample_size: [1024, 1024]
+      batch_nodata_threshold: 1.0
+      mask_multiplier: 255
+      unique: true
+fusion:
+  method: otsu
+  classes: 2
+seed: 1337

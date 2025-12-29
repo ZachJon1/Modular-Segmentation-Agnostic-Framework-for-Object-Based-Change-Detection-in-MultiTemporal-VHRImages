@@ -1,0 +1,41 @@
+data_root: "change_detection/data"
+sites:
+  - name: "A Luoi_Vietnam"
+  - name: "Asakura_Japan"
+  - name: "Askja_Iceland"
+  - name: "Big Sur_United States"
+  - name: "Chimanimani_Zimbabwe"
+  - name: "Jiuzhaigou_China"
+  - name: "Kaikoura_New Zealand"
+  - name: "Kodagu_India"
+  - name: "Kupang_Indonesia"
+  - name: "Kurucasile_Turkey"
+  - name: "Los Lagos_Chile"
+  - name: "Osh_Kyrgyzstan"
+  - name: "Santa Catarina_Brazil"
+  - name: "Shimen_China"
+  - name: "Taitung_China"
+  - name: "Tbilisi_Georgia"
+  - name: "Tenejapa_Mexico"
+algorithms:
+  - felzenszwalb
+  - meanshift
+  - quickshift
+params:
+  felzenszwalb:
+    scale: 250
+    sigma: 0.8
+    min_size: 400
+  meanshift:
+    sp: 21
+    sr: 21
+    max_level: 1
+    quantization: 16
+  quickshift:
+    kernel_size: 5
+    max_dist: 10
+    ratio: 0.5
+fusion:
+  method: multi_otsu
+  classes: 3
+seed: 1337
